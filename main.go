@@ -13,8 +13,8 @@ type Task struct{
 	Done bool
 }
 
-	var TaskList = []Task{}
-	var IdTask int = 0
+	var taskList = []Task{}
+	var idTask int = 0
 
 func main(){
 	
@@ -26,7 +26,7 @@ func main(){
 }
 
 func createTaskHandler(w http.ResponseWriter, r *http.Request){
-	IdTask += 1
+	idTask += 1
 
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -36,7 +36,6 @@ func createTaskHandler(w http.ResponseWriter, r *http.Request){
 	var details struct{
 		Title string `json:"title"`
 		Description string `json:"description"`
-		Done bool `json:"bool"`
 	}
 
 	err := json.NewDecoder(r.Body).Decode(&details)
@@ -45,16 +44,14 @@ func createTaskHandler(w http.ResponseWriter, r *http.Request){
 		return
 	}
 	
-	var tempTask Task = Task{IdTask, details.Title, details.Description, details.Done}
-	TaskList = append(TaskList, tempTask)
+	var tempTask Task = Task{idTask, details.Title, details.Description, false}
+	taskList = append(taskList, tempTask)
 
 	w.WriteHeader(http.StatusCreated)
 
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": "Task created successfully",
-	})
+	json.NewEncoder(w).Encode(tempTask)
 	
-	fmt.Println(TaskList[IdTask - 1])
+	fmt.Println(taskList[idTask - 1])
 }
 
 func getTaskHandler(w http.ResponseWriter, r *http.Request) {
@@ -65,5 +62,5 @@ func getTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 
-	json.NewEncoder(w).Encode(TaskList)
+	json.NewEncoder(w).Encode(taskList)
 }
