@@ -8,7 +8,6 @@ import (
 	"todo-api/models"
 )
 
-var taskList = []models.Task{}
 var idTask int = 0
 
 func CreateTaskHandler(w http.ResponseWriter, r *http.Request){
@@ -31,13 +30,13 @@ func CreateTaskHandler(w http.ResponseWriter, r *http.Request){
 		Title: taskResponseRequest.Title,
 		Description: taskResponseRequest.Description,
 		Done: false}
-	taskList = append(taskList, tempTask)
+	models.TaskList = append(models.TaskList, tempTask)
 
 	w.WriteHeader(http.StatusCreated)
 
 	json.NewEncoder(w).Encode(tempTask)
 	
-	fmt.Println(taskList[idTask - 1])
+	fmt.Println(models.TaskList[idTask - 1])
 }
 
 func GetTaskHandler(w http.ResponseWriter, r *http.Request) {
@@ -48,7 +47,7 @@ func GetTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 
-	json.NewEncoder(w).Encode(taskList)
+	json.NewEncoder(w).Encode(models.TaskList)
 }
 
 func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
@@ -70,9 +69,9 @@ func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var found bool = false
-	for i, task := range taskList {
+	for i, task := range models.TaskList {
 		if task.ID == id {
-			taskList = append(taskList[:i], taskList[i+1:]...)
+			models.TaskList = append(models.TaskList[:i], models.TaskList[i+1:]...)
 			found = true
 			break
 		}
