@@ -79,5 +79,7 @@ func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 	
 	if !found {
 		http.Error(w, "Task not found", http.StatusNotFound)
-	}	
+	}
+	
+	idTask -= 1
 }
