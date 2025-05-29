@@ -83,3 +83,34 @@ func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 	
 	idTask -= 1
 }
+
+func UpdateTaskHandler(w http.ResponseWriter, r *http.Request){
+	if r.Method != http.MethodPut {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	
+	type data struct {
+		ID int	`json:"id"`
+		Description string `json:"description"`
+	}
+	data_update := data{}
+	
+	err := json.NewDecoder(r.Body).Decode(&data_update)
+	if err != nil {
+		return
+	}
+
+	fmt.Println(data_update)
+	// if data_update.ID == "" || data_update.Description == "" {
+	// 	http.Error(w, "Missing parameters", http.StatusBadRequest)
+	// 	return
+	// }
+	
+	for _, task := range models.TaskList {
+		if task.ID == data_update.ID {
+			task.Description = data_update.Description
+			break
+		}
+	}
+}
