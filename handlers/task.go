@@ -36,7 +36,8 @@ func CreateTaskHandler(w http.ResponseWriter, r *http.Request){
 
 	json.NewEncoder(w).Encode(tempTask)
 	
-	fmt.Println(models.TaskList[idTask - 1])
+	fmt.Println(idTask)
+	fmt.Println(len(models.TaskList) - 1)
 }
 
 func GetTaskHandler(w http.ResponseWriter, r *http.Request) {
@@ -98,19 +99,17 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request){
 	
 	err := json.NewDecoder(r.Body).Decode(&data_update)
 	if err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
-
-	fmt.Println(data_update)
-	// if data_update.ID == "" || data_update.Description == "" {
-	// 	http.Error(w, "Missing parameters", http.StatusBadRequest)
-	// 	return
-	// }
 	
-	for _, task := range models.TaskList {
+	for i, task := range models.TaskList {
 		if task.ID == data_update.ID {
-			task.Description = data_update.Description
+			models.TaskList[i].Description = data_update.Description
 			break
 		}
 	}
+
+	// result := fmt.Sprint("")
+	// json.NewEncoder(w).Encode("")
 }
