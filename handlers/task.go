@@ -103,6 +103,16 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request){
 		return
 	}
 	
+	if data_update.ID == 0 {
+		http.Error(w, "Missing parameter id", http.StatusBadRequest)
+		return
+	}
+
+	if data_update.Description == "" {
+		http.Error(w, "Missing parameter description", http.StatusBadRequest)
+		return
+	}
+
 	found := false
 	for i, task := range models.TaskList {
 		if task.ID == data_update.ID {
