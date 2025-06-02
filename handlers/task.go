@@ -103,13 +103,16 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request){
 		return
 	}
 	
+	found := false
 	for i, task := range models.TaskList {
 		if task.ID == data_update.ID {
 			models.TaskList[i].Description = data_update.Description
+			found = true
 			break
 		}
 	}
 
-	// result := fmt.Sprint("")
-	// json.NewEncoder(w).Encode("")
+	if !found {
+		http.Error(w, "Task not found", http.StatusNotFound)
+	}
 }
