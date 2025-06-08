@@ -10,7 +10,7 @@ import (
 
 
 type Task struct{
-	ID int `json:"id"`
+	ID int64 `json:"id" gorm:"primaryKey"`
 	Title string `json:"title"`
 	Description string `json:"description"`
 	Done bool `json:"done"`
