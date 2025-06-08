@@ -8,11 +8,7 @@ import (
 	"todo-api/models"
 )
 
-var idTask int = 0
-
 func CreateTaskHandler(w http.ResponseWriter, r *http.Request){
-	idTask += 1
-
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -26,25 +22,30 @@ func CreateTaskHandler(w http.ResponseWriter, r *http.Request){
 	}
 	
 	var tempTask models.Task = models.Task{
-		ID: idTask, 
 		Title: taskResponseRequest.Title,
 		Description: taskResponseRequest.Description,
-		Done: false}
+		Done: false,
+	}
 	models.TaskList = append(models.TaskList, tempTask)
+	db := models.ConnectDB()
+	db.Create(&tempTask)
 
 	w.WriteHeader(http.StatusCreated)
 
 	json.NewEncoder(w).Encode(tempTask)
-	
-	fmt.Println(idTask)
-	fmt.Println(len(models.TaskList) - 1)
-}
 
+}
 func GetTaskHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
+
+	task := models.Task{}
+	db := models.ConnectDB()
+	result := db.First(&task)
+	fmt.Printf("Result get result %v", result)
+	
 
 	w.WriteHeader(http.StatusOK)
 
@@ -63,7 +64,7 @@ func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := strconv.Atoi(idParam)
+	id, err := strconv.ParseInt(idParam, 10, 64)
 	if err != nil {
 		http.Error(w, "Invalid id parameter", http.StatusBadRequest)
 		return
@@ -82,7 +83,6 @@ func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Task not found", http.StatusNotFound)
 	}
 	
-	idTask -= 1
 }
 
 func UpdateTaskHandler(w http.ResponseWriter, r *http.Request){
@@ -92,7 +92,7 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request){
 	}
 	
 	type data struct {
-		ID int	`json:"id"`
+		ID int64	`json:"id"`
 		Description string `json:"description"`
 	}
 	data_update := data{}
@@ -125,4 +125,18 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request){
 	if !found {
 		http.Error(w, "Task not found", http.StatusNotFound)
 	}
+}
+
+func HandleMigrations(w http.ResponseWriter, r *http.Request){
+	if r.Method != http.MethodGet{
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	migration_result, err := models.MigrateDB()
+	if err != nil {
+		fmt.Printf("panic: %v\n", err)
+	}
+
+	json.NewEncoder(w).Encode(migration_result)
+
 }
