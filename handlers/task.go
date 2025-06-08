@@ -26,7 +26,6 @@ func CreateTaskHandler(w http.ResponseWriter, r *http.Request){
 		Description: taskResponseRequest.Description,
 		Done: false,
 	}
-	models.TaskList = append(models.TaskList, tempTask)
 	db := models.ConnectDB()
 	db.Create(&tempTask)
 
@@ -35,21 +34,25 @@ func CreateTaskHandler(w http.ResponseWriter, r *http.Request){
 	json.NewEncoder(w).Encode(tempTask)
 
 }
-func GetTaskHandler(w http.ResponseWriter, r *http.Request) {
+func GetTaskByTitleHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	task := models.Task{}
+	tasks := []models.Task{}
 	db := models.ConnectDB()
-	result := db.First(&task)
-	fmt.Printf("Result get result %v", result)
+	result := db.Where("title LIKE ?", "%Workout%").Find(&tasks)
+	if result.Error != nil{
+		http.Error(w, "Error quering database", http.StatusServiceUnavailable)
+		return
+	}
+	
 	
 
 	w.WriteHeader(http.StatusOK)
 
-	json.NewEncoder(w).Encode(models.TaskList)
+	json.NewEncoder(w).Encode(tasks)
 }
 
 func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
