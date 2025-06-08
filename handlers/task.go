@@ -126,6 +126,7 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request){
 		return
 	}
 	
+	// check later
 	updates := map[string]interface{}{"description": data_update.Description}
 	result = db.Model(&task).Where("id = ?", data_update.ID).Updates(updates)
 	if result.Error != nil {

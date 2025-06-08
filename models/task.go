@@ -19,9 +19,6 @@ type Task struct{
 	DeletedAt gorm.DeletedAt `json:"deleted_at,omitempty" gorm:"index"`
 }
 
-var TaskList = []Task{}
-
-
 func ConnectDB() *gorm.DB {
 	var dsn string = "host=localhost user=admin password=myadmin dbname=todo-api port=5432 sslmode=disable"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
