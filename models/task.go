@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"time"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -13,6 +14,8 @@ type Task struct{
 	Title string `json:"title"`
 	Description string `json:"description"`
 	Done bool `json:"done"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 var TaskList = []Task{}
@@ -26,12 +29,17 @@ func ConnectDB() *gorm.DB {
 		fmt.Println(err)
         panic(fmt.Sprintf("Failed to connect to database: %v", err))
 	}
+
 	return db
 }
 
-func MigrateDB(db *gorm.DB) {
+func MigrateDB() (string, error){
+	db := ConnectDB()
 	err := db.AutoMigrate(&Task{})
 	if err != nil{
-		panic(fmt.Sprintf("Failed to migrate database: %v", err))
+		// panic(fmt.Sprintf("Failed to migrate database: %v", err))
+		return "Something occurred in the Migration", fmt.Errorf("failed to migrate database %v", err)
 	}
+
+	return "The Migration runned successfully", nil
 }
