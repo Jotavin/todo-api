@@ -48,10 +48,7 @@ func GetTaskByTitleHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	
-	
-
 	w.WriteHeader(http.StatusOK)
-
 	json.NewEncoder(w).Encode(tasks)
 }
 
@@ -72,19 +69,23 @@ func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid id parameter", http.StatusBadRequest)
 		return
 	}
-
-	var found bool = false
-	for i, task := range models.TaskList {
-		if task.ID == id {
-			models.TaskList = append(models.TaskList[:i], models.TaskList[i+1:]...)
-			found = true
-			break
-		}
-	}
 	
-	if !found {
+	task := models.Task{}
+	db := models.ConnectDB()
+
+	result := db.First(&task, id)
+	if result.Error != nil {
 		http.Error(w, "Task not found", http.StatusNotFound)
+		return
 	}
+
+	deleteResult := db.Delete(&task, id)
+	if deleteResult.Error != nil {
+		http.Error(w, "Error to delete", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode("Task deleted")
 	
 }
 
@@ -116,18 +117,23 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	found := false
-	for i, task := range models.TaskList {
-		if task.ID == data_update.ID {
-			models.TaskList[i].Description = data_update.Description
-			found = true
-			break
-		}
-	}
-
-	if !found {
+	var task models.Task
+	db := models.ConnectDB()
+	result := db.First(&task, data_update.ID)
+	if result.Error != nil {
 		http.Error(w, "Task not found", http.StatusNotFound)
+		fmt.Println(result.Error)
+		return
 	}
+	
+	updates := map[string]interface{}{"description": data_update.Description}
+	result = db.Model(&task).Where("id = ?", data_update.ID).Updates(updates)
+	if result.Error != nil {
+		http.Error(w, "Operation update failed", http.StatusNotFound)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode("Column updated successfully")
 }
 
 func HandleMigrations(w http.ResponseWriter, r *http.Request){

@@ -16,6 +16,7 @@ type Task struct{
 	Done bool `json:"done"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `json:"deleted_at,omitempty" gorm:"index"`
 }
 
 var TaskList = []Task{}
@@ -37,7 +38,6 @@ func MigrateDB() (string, error){
 	db := ConnectDB()
 	err := db.AutoMigrate(&Task{})
 	if err != nil{
-		// panic(fmt.Sprintf("Failed to migrate database: %v", err))
 		return "Something occurred in the Migration", fmt.Errorf("failed to migrate database %v", err)
 	}
 
