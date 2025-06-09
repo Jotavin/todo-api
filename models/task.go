@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"time"
+	"todo-api/metrics"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -20,7 +21,14 @@ type Task struct{
 	DeletedAt gorm.DeletedAt `json:"deleted_at,omitempty" gorm:"index"`
 }
 
-func ConnectDB() *gorm.DB {
+func ConnectDB() (*gorm.DB, error){
+	start := time.Now()
+	defer func() {
+		metrics.DatabaseConnectionDuration.Observe(time.Since(start).Seconds())
+	}()
+
+	metrics.DatabaseConnectionAttempts.Inc()
+
 	host := os.Getenv("DB_HOST")
 	if host == "" {
 		host = "localhost" // fallback para desenvolvimento local
@@ -38,7 +46,7 @@ func ConnectDB() *gorm.DB {
 	
 	password := os.Getenv("DB_PASSWORD")
 	if password == "" {
-		password = "password123"
+		password = "myadmin"
 	}
 	
 	dbname := os.Getenv("DB_NAME")
@@ -49,16 +57,26 @@ func ConnectDB() *gorm.DB {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
-		fmt.Println(err)
-        panic(fmt.Sprintf("Failed to connect to database: %v", err))
+		metrics.DatabaseConnectionFailures.Inc()
+		metrics.DatabaseErrors.WithLabelValues("connect", "connection_failed").Inc()
+		
+		fmt.Printf("Erro de conexão: %v\n", err)
+		return nil, fmt.Errorf("failed to connect to database: %v", err)
 	}
 
-	return db
+	metrics.DatabaseConnectionsActive.Inc()
+	
+	return db, nil
 }
 
 func MigrateDB() (string, error){
-	db := ConnectDB()
-	err := db.AutoMigrate(&Task{})
+	db, err := ConnectDB()
+	if err != nil{
+		metrics.RequestsTotal.WithLabelValues("/createTask", "POST", "500").Inc()
+		return "", fmt.Errorf("failed to connect to database: %v", err)
+	}
+
+	err = db.AutoMigrate(&Task{})
 	if err != nil{
 		return "Something occurred in the Migration", fmt.Errorf("failed to migrate database %v", err)
 	}
