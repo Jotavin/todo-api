@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"gorm.io/driver/postgres"
@@ -20,7 +21,31 @@ type Task struct{
 }
 
 func ConnectDB() *gorm.DB {
-	var dsn string = "host=localhost user=admin password=myadmin dbname=todo-api port=5432 sslmode=disable"
+	host := os.Getenv("DB_HOST")
+	if host == "" {
+		host = "localhost" // fallback para desenvolvimento local
+	}
+	
+	port := os.Getenv("DB_PORT")
+	if port == "" {
+		port = "5432"
+	}
+	
+	user := os.Getenv("DB_USER")
+	if user == "" {
+		user = "admin"
+	}
+	
+	password := os.Getenv("DB_PASSWORD")
+	if password == "" {
+		password = "password123"
+	}
+	
+	dbname := os.Getenv("DB_NAME")
+	if dbname == "" {
+		dbname = "todo-api"
+	}
+	var dsn string = fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", host, user, password, dbname, port)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
