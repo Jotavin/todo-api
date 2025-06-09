@@ -28,6 +28,8 @@ services:
     volumes:
     - ./prometheus.yml:/etc/prometheus/prometheus.yml
     - prometheus_data:/prometheus
+    env_file:
+      - .env
     command:
     - --config.file=/etc/prometheus/prometheus.yml
     networks:
