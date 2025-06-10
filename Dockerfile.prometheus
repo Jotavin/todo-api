@@ -1,0 +1,19 @@
+FROM prom/prometheus
+
+# Copia arquivos como root
+USER root
+COPY prometheus.yml.template /etc/prometheus/prometheus.yml.template  
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+
+# Define permissões (sem tentar mudar dono para usuário inexistente)
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh && \
+    chmod 644 /etc/prometheus/prometheus.yml.template
+
+# Volta para o usuário padrão da imagem (nobody)
+USER nobody
+
+# Expõe a porta padrão do Prometheus
+EXPOSE 9090
+
+# Usa nosso script personalizado
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
