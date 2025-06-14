@@ -19,7 +19,7 @@ func main(){
 }
 
 func CreateDB(){
-	db, err := gorm.Open(sqlite.Open("test.sqlite"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("test/test.sqlite"), &gorm.Config{})
 	if err != nil {
 		fmt.Println(err)
 		panic("failed to connect database")
@@ -29,7 +29,7 @@ func CreateDB(){
 }
 
 func CreateTask(){
-	db, err := gorm.Open(sqlite.Open("test.sqlite"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("test/test.sqlite"), &gorm.Config{})
 	if err != nil {
 		fmt.Println(err)
 		panic("failed to connect database")
@@ -39,7 +39,7 @@ func CreateTask(){
 }
 
 func ReadTask(){
-	db, err := gorm.Open(sqlite.Open("test.sqlite"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("test/test.sqlite"), &gorm.Config{})
 	if err != nil {
 		fmt.Println(err)
 		panic("failed to connect database")
@@ -51,7 +51,7 @@ func ReadTask(){
 }
 
 func UpdateTask(){
-	db, err := gorm.Open(sqlite.Open("test.sqlite"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("test/test.sqlite"), &gorm.Config{})
 	if err != nil {
 		fmt.Println(err)
 		panic("failed to connect database")
@@ -65,7 +65,7 @@ func UpdateTask(){
 }
 
 func DeleteTask() {
-	db, err := gorm.Open(sqlite.Open("test.sqlite"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("test/test.sqlite"), &gorm.Config{})
 	if err != nil {
 		fmt.Println(err)
 		panic("failed to connect database")
