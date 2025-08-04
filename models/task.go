@@ -21,15 +21,16 @@ type Task struct{
 	DeletedAt gorm.DeletedAt `json:"deleted_at,omitempty" gorm:"index"`
 }
 
-func ConnectDB() (*gorm.DB, error){
-	start := time.Now()
-	defer func() {
-		metrics.DatabaseConnectionDuration.Observe(time.Since(start).Seconds())
-	}()
+var DB *gorm.DB
 
-	metrics.DatabaseConnectionAttempts.Inc()
+func getEnvOrDefault(key, defaultValue string){
 
-	host := os.Getenv("DB_HOST")
+}
+
+func buildDSN() string{
+
+
+ 	host := os.Getenv("DB_HOST")
 	if host == "" {
 		host = "localhost" // fallback para desenvolvimento local
 	}
@@ -53,7 +54,23 @@ func ConnectDB() (*gorm.DB, error){
 	if dbname == "" {
 		dbname = "todo-api"
 	}
-	var dsn string = fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", host, user, password, dbname, port)
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", host, user, password, dbname, port)
+	return dsn
+}
+
+func ConnectDB() (*gorm.DB, error){
+	if DB != nil {
+		return DB, nil
+	}
+
+	start := time.Now()
+	defer func() {
+		metrics.DatabaseConnectionDuration.Observe(time.Since(start).Seconds())
+	}()
+
+	metrics.DatabaseConnectionAttempts.Inc()
+
+	dsn := buildDSN()
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
@@ -65,7 +82,7 @@ func ConnectDB() (*gorm.DB, error){
 	}
 
 	metrics.DatabaseConnectionsActive.Inc()
-	
+
 	return db, nil
 }
 
