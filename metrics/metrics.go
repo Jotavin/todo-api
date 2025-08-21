@@ -197,6 +197,6 @@ func init(){
 	prometheus.MustRegister(DatabasePoolConnectionsOpen)
 	prometheus.MustRegister(DatabasePoolConnectionsInUse)
 	prometheus.MustRegister(DatabasePoolConnectionsIdle)
-	fmt.Println("✅ Metrics registrad successfully!")
+	fmt.Println("✅ Metrics registred successfully!")
 
 }

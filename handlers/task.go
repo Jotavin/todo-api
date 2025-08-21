@@ -109,6 +109,29 @@ func GetTasksByTitleHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(tasks)
 }
 
+func GetTasksHandler(w http.ResponseWriter, r *http.Request) {
+	db, err := models.ConnectDB()
+	if err != nil {
+		http.Error(w, "Database connection failed.", http.StatusInternalServerError)
+		return
+	}
+
+	task := models.Task{}
+
+	result := db.First(&task)
+	if result.Error != nil {
+		http.Error(w, "Failed fetching task", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"message": "Query successed",
+		"result":  task,
+	})
+}
+
 func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
 	defer func() {
